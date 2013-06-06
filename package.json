@@ -40,6 +40,6 @@
     "checklist": "0.0.6"
   },
   "dependencies": {
-    "zmq": "~2.4.0",
+    "zmq": "~2.4.0"
   }
 }
