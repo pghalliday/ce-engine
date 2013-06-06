@@ -1,0 +1,45 @@
+{
+  "name": "ce-engine",
+  "version": "0.0.0",
+  "description": "Currency exchange order matching engine",
+  "main": "lib/src/index.js",
+  "scripts": {
+    "prepublish": "grunt build",
+    "prestart": "grunt build",
+    "start": "node lib/src/index.js",
+    "test": "grunt",
+    "travis-cov": {
+      "threshold": 100
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pghalliday/ce-engine.git"
+  },
+  "keywords": [
+    "currency",
+    "exchange",
+    "web",
+    "service"
+  ],
+  "author": "Peter Halliday",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "devDependencies": {
+    "grunt-cli": "~0.1.9",
+    "grunt": "~0.4.1",
+    "grunt-mocha-test": "~0.4.0",
+    "chai": "~1.6.0",
+    "grunt-contrib-coffee": "~0.7.0",
+    "grunt-contrib-clean": "~0.4.1",
+    "travis-cov": "~0.2.4",
+    "child-daemon": "0.0.2",
+    "grunt-blanket": "0.0.8",
+    "grunt-contrib-copy": "~0.4.1",
+    "supertest": "~0.7.0",
+    "checklist": "0.0.6"
+  },
+  "dependencies": {
+    "zmq": "~2.4.0",
+  }
+}

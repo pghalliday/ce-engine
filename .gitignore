@@ -1,0 +1,6 @@
+.vagrant
+node_modules
+Berksfile.lock
+lib
+lib-cov
+coverage.html

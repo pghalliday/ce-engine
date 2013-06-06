@@ -1,0 +1,3 @@
+[submodule "cookbooks/ce-engine"]
+	path = cookbooks/ce-engine
+	url = https://github.com/pghalliday/cookbook-ce-engine.git
