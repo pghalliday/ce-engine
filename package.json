@@ -2,11 +2,10 @@
   "name": "ce-engine",
   "version": "0.0.0",
   "description": "Currency exchange order matching engine",
-  "main": "lib/src/index.js",
   "scripts": {
-    "prepublish": "grunt build",
-    "prestart": "grunt build",
-    "start": "node lib/src/index.js",
+    "prestart": "npm test",
+    "start": "forever start -a -l ./forever.log -o ./out.log -e ./err.log  lib/src/index.js",
+    "stop": "forever stop lib/src/index.js",
     "test": "grunt",
     "travis-cov": {
       "threshold": 100
@@ -40,6 +39,7 @@
     "checklist": "0.0.6"
   },
   "dependencies": {
-    "zmq": "~2.4.0"
+    "zmq": "~2.4.0",
+    "forever": "~0.10.8"
   }
 }
