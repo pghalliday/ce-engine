@@ -1,0 +1,4 @@
+{
+  "ce-operation-hub-subscriber": "tcp://localhost:7000",
+  "ce-operation-hub-push": "tcp://localhost:7001"
+}

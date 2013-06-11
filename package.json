@@ -4,7 +4,7 @@
   "description": "Currency exchange order matching engine",
   "scripts": {
     "prestart": "npm test",
-    "start": "forever start -a -l ./forever.log -o ./out.log -e ./err.log  lib/src/index.js",
+    "start": "forever start -a -l ./forever.log -o ./out.log -e ./err.log  lib/src/index.js --config config.json",
     "stop": "forever stop lib/src/index.js",
     "test": "grunt",
     "travis-cov": {
@@ -35,11 +35,11 @@
     "child-daemon": "0.0.2",
     "grunt-blanket": "0.0.8",
     "grunt-contrib-copy": "~0.4.1",
-    "supertest": "~0.7.0",
     "checklist": "0.0.6"
   },
   "dependencies": {
     "zmq": "~2.4.0",
-    "forever": "~0.10.8"
+    "forever": "~0.10.8",
+    "nconf": "~0.6.7"
   }
 }
