@@ -62,4 +62,7 @@ describe 'Server', ->
         order.id.should.equal 0
         order.status.should.equal 'success'
         done()
-      @ceOperationHubPublisher.send JSON.stringify @order
+      # wait for sockets to open and connect in case everything is going too quick
+      setTimeout =>
+        @ceOperationHubPublisher.send JSON.stringify @order
+      , 100
