@@ -5,13 +5,16 @@ expect = chai.expect
 Server = require '../../src/Server'
 
 zmq = require 'zmq'
+ports = require '../support/ports'
 
 describe 'Server', ->
   describe '#stop', ->
     it 'should not error if the server has not been started', (done) ->
       server = new Server
-        ceOperationHubSubscriber: 'tcp://localhost:8000'
-        ceOperationHubPush: 'tcp://localhost:8001'
+        'ce-operation-hub':
+          host: 'localhost'
+          stream: ports()
+          result: ports()
       server.stop (error) ->
         expect(error).to.not.be.ok
         done()
@@ -19,8 +22,10 @@ describe 'Server', ->
   describe '#start', ->
     it 'should start and be stoppable', (done) ->
       server = new Server
-        ceOperationHubSubscriber: 'tcp://localhost:8000'
-        ceOperationHubPush: 'tcp://localhost:8001'
+        'ce-operation-hub':
+          host: 'localhost'
+          stream: ports()
+          result: ports()
       server.start (error) ->
         expect(error).to.not.be.ok
         server.stop (error) ->
@@ -29,10 +34,13 @@ describe 'Server', ->
 
   describe 'when started', ->
     beforeEach (done) ->
-      @ceOperationHubPublisher = zmq.socket 'pub'
-      @ceOperationHubPublisher.bindSync 'tcp://*:8000'
-      @ceOperationHubPull = zmq.socket 'pull'
-      @ceOperationHubPull.bindSync 'tcp://*:8001'
+      @ceOperationHub = 
+        stream: zmq.socket 'pub'
+        result: zmq.socket 'pull'
+      ceOperationHubStreamPort = ports()
+      @ceOperationHub.stream.bindSync 'tcp://*:' + ceOperationHubStreamPort
+      ceOperationHubResultPort = ports()
+      @ceOperationHub.result.bindSync 'tcp://*:' + ceOperationHubResultPort
       @order =
         account: 'Peter'
         bidCurrency: 'EUR'
@@ -41,18 +49,20 @@ describe 'Server', ->
         bidAmount: '50'
         id: 0     
       @server = new Server
-        ceOperationHubSubscriber: 'tcp://localhost:8000'
-        ceOperationHubPush: 'tcp://localhost:8001'
+        'ce-operation-hub':
+          host: 'localhost'
+          stream: ceOperationHubStreamPort
+          result: ceOperationHubResultPort
       @server.start done
 
     afterEach (done) ->
       @server.stop =>
-        @ceOperationHubPublisher.close()
-        @ceOperationHubPull.close()
+        @ceOperationHub.stream.close()
+        @ceOperationHub.result.close()
         done()
 
     it 'should push a status of success for published orders', (done) ->
-      @ceOperationHubPull.on 'message', (message) =>
+      @ceOperationHub.result.on 'message', (message) =>
         order = JSON.parse message
         order.account.should.equal 'Peter'
         order.bidCurrency.should.equal 'EUR'
@@ -64,5 +74,5 @@ describe 'Server', ->
         done()
       # wait for sockets to open and connect in case everything is going too quick
       setTimeout =>
-        @ceOperationHubPublisher.send JSON.stringify @order
+        @ceOperationHub.stream.send JSON.stringify @order
       , 100

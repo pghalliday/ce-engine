@@ -2,20 +2,21 @@ zmq = require 'zmq'
 
 module.exports = class Server
   constructor: (@options) ->
-    @ceOperationHubSubscriber = zmq.socket 'sub'
-    @ceOperationHubSubscriber.subscribe ''
-    @ceOperationHubPush = zmq.socket 'push'
-    @ceOperationHubSubscriber.on 'message', (message) =>
+    @ceOperationHub = 
+      stream: zmq.socket 'sub'
+      result: zmq.socket 'push'
+    @ceOperationHub.stream.subscribe ''
+    @ceOperationHub.stream.on 'message', (message) =>
       order = JSON.parse message
       order.status = 'success'
-      @ceOperationHubPush.send JSON.stringify order
+      @ceOperationHub.result.send JSON.stringify order
 
   stop: (callback) =>
-    @ceOperationHubSubscriber.close()
-    @ceOperationHubPush.close()
+    @ceOperationHub.stream.close()
+    @ceOperationHub.result.close()
     callback()
 
   start: (callback) =>
-    @ceOperationHubSubscriber.connect @options.ceOperationHubSubscriber
-    @ceOperationHubPush.connect @options.ceOperationHubPush
+    @ceOperationHub.stream.connect 'tcp://' + @options['ce-operation-hub'].host + ':' + @options['ce-operation-hub'].stream
+    @ceOperationHub.result.connect 'tcp://' + @options['ce-operation-hub'].host + ':' + @options['ce-operation-hub'].result
     callback()
