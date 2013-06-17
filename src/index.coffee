@@ -9,7 +9,7 @@ if config
     file: config
 
 server = new Server nconf.get()
-console.log server.options
+console.log JSON.stringify server.options, null, 4
 
 server.start (error) ->
   if error
