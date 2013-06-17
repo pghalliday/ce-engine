@@ -13,6 +13,6 @@ console.log JSON.stringify server.options, null, 4
 
 server.start (error) ->
   if error
-    console.log error
+    console.trace error
   else
     console.log 'ce-engine started'
