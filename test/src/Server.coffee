@@ -58,13 +58,19 @@ describe 'Server', ->
         unknown:
           currency: 'BTC'
           amount: '50'
-      @depositOperation =
+      @depositOperation1 =
         account: 'Peter'
         id: 0     
         deposit:
           currency: 'EUR'
           amount: '5000'
-      @orderOperation =
+      @depositOperation2 =
+        account: 'Peter'
+        id: 1
+        deposit:
+          currency: 'BTC'
+          amount: '50'
+      @orderOperation1 =
         account: 'Peter'
         id: 0
         order:
@@ -72,6 +78,14 @@ describe 'Server', ->
           offerCurrency: 'BTC'
           bidPrice: '100'
           bidAmount: '50'
+      @orderOperation2 =
+        account: 'Peter'
+        id: 1
+        order:
+          bidCurrency: 'BTC'
+          offerCurrency: 'EUR'
+          bidPrice: '20'
+          bidAmount: '500'
       @server = new Server
         'ce-operation-hub':
           host: 'localhost'
@@ -94,7 +108,7 @@ describe 'Server', ->
         operation = JSON.parse message
         operation.account.should.equal 'Peter'
         operation.id.should.equal 0
-        operation.result.should.equal 'unknown operation'
+        operation.result.should.equal 'Error: Unknown operation'
         unknown = operation.unknown
         unknown.currency.should.equal 'BTC'
         unknown.amount.should.equal '50'
@@ -102,20 +116,37 @@ describe 'Server', ->
       # wait for sockets to open and connect in case everything is going too quick
       setTimeout =>
         @ceOperationHub.stream.send JSON.stringify @unknownOperation
-      , 100      
+      , 100
 
-    it 'should push a result of success to the ce-operation-hub and push the balance increase delta to the ce-delta-hub for published deposits', (done) ->
-      statusReceived = Q.defer()
+    it 'should push a result of success to the ce-operation-hub and push the balance increase delta to the ce-delta-hub with sequential delta IDs for published deposits', (done) ->
+      resultReceived = Q.defer()
       deltaReceived = Q.defer()
       Q.all([
-        statusReceived.promise,
+        resultReceived.promise,
         deltaReceived.promise
       ])
       .then((results) =>
         done()
       , done)
       .done()
-      @ceOperationHub.result.on 'message', (message) =>
+      secondResult = (message) =>
+        operation = JSON.parse message
+        operation.account.should.equal 'Peter'
+        operation.id.should.equal 1
+        operation.result.should.equal 'success'
+        deposit = operation.deposit
+        deposit.currency.should.equal 'BTC'
+        deposit.amount.should.equal '50'
+        resultReceived.resolve()
+      secondDelta = (message) =>
+        delta = JSON.parse message
+        delta.id.should.equal 1
+        increase = delta.increase
+        increase.account.should.equal 'Peter'
+        increase.currency.should.equal 'BTC'
+        increase.amount.should.equal '50'
+        deltaReceived.resolve()        
+      firstResult = (message) =>
         operation = JSON.parse message
         operation.account.should.equal 'Peter'
         operation.id.should.equal 0
@@ -123,32 +154,58 @@ describe 'Server', ->
         deposit = operation.deposit
         deposit.currency.should.equal 'EUR'
         deposit.amount.should.equal '5000'
-        statusReceived.resolve()
-      @ceDeltaHub.stream.on 'message', (message) =>
+        @ceOperationHub.result.removeListener 'message', firstResult
+        @ceOperationHub.result.on 'message', secondResult
+      firstDelta = (message) =>
         delta = JSON.parse message
         delta.id.should.equal 0
         increase = delta.increase
         increase.account.should.equal 'Peter'
         increase.currency.should.equal 'EUR'
         increase.amount.should.equal '5000'
-        deltaReceived.resolve()
+        @ceDeltaHub.stream.removeListener 'message', firstDelta
+        @ceDeltaHub.stream.on 'message', secondDelta
+      @ceOperationHub.result.on 'message', firstResult
+      @ceDeltaHub.stream.on 'message', firstDelta
       # wait for sockets to open and connect in case everything is going too quick
       setTimeout =>
-        @ceOperationHub.stream.send JSON.stringify @depositOperation
+        @ceOperationHub.stream.send JSON.stringify @depositOperation1
+        @ceOperationHub.stream.send JSON.stringify @depositOperation2
       , 100
 
-    it 'should push a result of success to the ce-operation-hub and push the order book delta to the ce-delta-hub for published orders', (done) ->
-      statusReceived = Q.defer()
+    it 'should push a result of success to the ce-operation-hub and push the order book delta to the ce-delta-hub with sequential delta IDs for published orders', (done) ->
+      resultReceived = Q.defer()
       deltaReceived = Q.defer()
       Q.all([
-        statusReceived.promise,
+        resultReceived.promise,
         deltaReceived.promise
       ])
       .then((results) =>
         done()
       , done)
       .done()
-      @ceOperationHub.result.on 'message', (message) =>
+      secondResult = (message) =>
+        operation = JSON.parse message
+        operation.account.should.equal 'Peter'
+        operation.id.should.equal 1
+        operation.result.should.equal 'success'
+        order = operation.order
+        order.bidCurrency.should.equal 'BTC'
+        order.offerCurrency.should.equal 'EUR'
+        order.bidPrice.should.equal '20'
+        order.bidAmount.should.equal '500'
+        resultReceived.resolve()
+      secondDelta = (message) =>
+        delta = JSON.parse message
+        delta.id.should.equal 1
+        add = delta.add
+        add.account.should.equal 'Peter'
+        add.bidCurrency.should.equal 'BTC'
+        add.offerCurrency.should.equal 'EUR'
+        add.bidPrice.should.equal '20'
+        add.bidAmount.should.equal '500'
+        deltaReceived.resolve()        
+      firstResult = (message) =>
         operation = JSON.parse message
         operation.account.should.equal 'Peter'
         operation.id.should.equal 0
@@ -158,8 +215,9 @@ describe 'Server', ->
         order.offerCurrency.should.equal 'BTC'
         order.bidPrice.should.equal '100'
         order.bidAmount.should.equal '50'
-        statusReceived.resolve()
-      @ceDeltaHub.stream.on 'message', (message) =>
+        @ceOperationHub.result.removeListener 'message', firstResult
+        @ceOperationHub.result.on 'message', secondResult
+      firstDelta = (message) =>
         delta = JSON.parse message
         delta.id.should.equal 0
         add = delta.add
@@ -168,8 +226,54 @@ describe 'Server', ->
         add.offerCurrency.should.equal 'BTC'
         add.bidPrice.should.equal '100'
         add.bidAmount.should.equal '50'
-        deltaReceived.resolve()
+        @ceDeltaHub.stream.removeListener 'message', firstDelta
+        @ceDeltaHub.stream.on 'message', secondDelta
+      @ceOperationHub.result.on 'message', firstResult
+      @ceDeltaHub.stream.on 'message', firstDelta
       # wait for sockets to open and connect in case everything is going too quick
       setTimeout =>
-        @ceOperationHub.stream.send JSON.stringify @orderOperation
+        @ceOperationHub.stream.send JSON.stringify @orderOperation1
+        @ceOperationHub.stream.send JSON.stringify @orderOperation2
       , 100
+
+    it 'should error on operations with IDs that have already been executed', (done) ->
+      secondResult = (message) =>
+        operation = JSON.parse message
+        operation.account.should.equal 'Peter'
+        operation.id.should.equal 0
+        operation.result.should.equal 'Error: Operation ID already applied'
+        deposit = operation.deposit
+        deposit.currency.should.equal 'EUR'
+        deposit.amount.should.equal '5000'
+        done()
+      firstResult = (message) =>
+        operation = JSON.parse message
+        operation.account.should.equal 'Peter'
+        operation.id.should.equal 0
+        operation.result.should.equal 'success'
+        deposit = operation.deposit
+        deposit.currency.should.equal 'EUR'
+        deposit.amount.should.equal '5000'
+        @ceOperationHub.result.removeListener 'message', firstResult
+        @ceOperationHub.result.on 'message', secondResult
+        @ceOperationHub.stream.send JSON.stringify @depositOperation1
+      @ceOperationHub.result.on 'message', firstResult
+      # wait for sockets to open and connect in case everything is going too quick
+      setTimeout =>
+        @ceOperationHub.stream.send JSON.stringify @depositOperation1
+      , 100      
+
+    it 'should error on operations with IDs that are not consecutive', (done) ->
+      @ceOperationHub.result.on 'message', (message) =>
+        operation = JSON.parse message
+        operation.account.should.equal 'Peter'
+        operation.id.should.equal 1
+        operation.result.should.equal 'Error: Operation ID out of sequence'
+        deposit = operation.deposit
+        deposit.currency.should.equal 'BTC'
+        deposit.amount.should.equal '50'
+        done()
+      # wait for sockets to open and connect in case everything is going too quick
+      setTimeout =>
+        @ceOperationHub.stream.send JSON.stringify @depositOperation2
+      , 100      
