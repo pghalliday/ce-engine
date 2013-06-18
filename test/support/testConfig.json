@@ -3,5 +3,9 @@
     "host": "localhost",
     "stream": 7000,
     "result": 7001    
+  },
+  "ce-delta-hub": {
+    "host": "localhost",
+    "stream": 7002
   }
 }
