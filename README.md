@@ -77,15 +77,15 @@ result:
 
 Can result in the following deltas:
 
-- `increase` - resulting from the balance increase
+- `deposit`
 
-### `order`
+### `submit`
 
 ```javascript
 {
   "account": "[account]",
   "id": "1234567890",
-  "order": {
+  "submit": {
     "bidCurrency": "BTC",
     "offerCurrency": "EUR",
     "bidPrice": "100",
@@ -112,7 +112,7 @@ result:
 
 Can result in the following deltas:
 
-- `add` - resulting from the addition of the order
+- `submit` - resulting from the addition of the order
 - `trade` - resulting from trades executed as a result of adding the order
 
 ## Roadmap
