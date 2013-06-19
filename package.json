@@ -11,6 +11,7 @@
       "threshold": 100
     }
   },
+  "main": "lib/src/Server.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/pghalliday/ce-engine.git"
