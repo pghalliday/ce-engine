@@ -15,25 +15,17 @@ module.exports = class Server
       if operation.id == nextOperationId
         nextOperationId++
         deposit = operation.deposit
-        order = operation.order
+        submit = operation.submit
         if deposit
           operation.result = 'success'
           delta =
             id: nextDeltaId++
-            increase:
-              account: operation.account
-              currency: deposit.currency
-              amount: deposit.amount
-        else if order
+            operation: operation
+        else if submit
           operation.result = 'success'
           delta =
             id: nextDeltaId++
-            add:
-              account: operation.account
-              bidCurrency: order.bidCurrency
-              offerCurrency: order.offerCurrency
-              bidPrice: order.bidPrice
-              bidAmount: order.bidAmount
+            operation: operation
         else
           operation.result = 'Error: Unknown operation'
       else

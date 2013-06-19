@@ -56,10 +56,13 @@ describe 'ce-engine', ->
       ceDeltaHub.stream.on 'message', (message) =>
         delta = JSON.parse message
         delta.id.should.equal 0
-        increase = delta.increase
-        increase.account.should.equal 'Peter'
-        increase.currency.should.equal 'EUR'
-        increase.amount.should.equal '5000'
+        operation = delta.operation
+        operation.id.should.equal 0
+        operation.account.should.equal 'Peter'
+        operation.result.should.equal 'success'
+        deposit = operation.deposit
+        deposit.currency.should.equal 'EUR'
+        deposit.amount.should.equal '5000'
         deltaReceived.resolve()
       # wait for sockets to open and connect in case everything is going too quick
       setTimeout =>

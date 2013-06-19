@@ -50,6 +50,8 @@ The following operations are supported
 
 ### `deposit`
 
+Add funds to an account balance
+
 ```javascript
 {
   "account": "[account]",
@@ -81,6 +83,8 @@ Can result in the following deltas:
 
 ### `submit`
 
+Add an order to an order book
+
 ```javascript
 {
   "account": "[account]",
@@ -101,7 +105,7 @@ result:
   "account": "[account]",
   "id": "1234567890",
   "result": "success",
-  "order": {
+  "submit": {
     "bidCurrency": "BTC",
     "offerCurrency": "EUR",
     "bidPrice": "100",
@@ -123,6 +127,72 @@ Can result in the following deltas:
 - maintain a history of deltas
   - since last persisted market state
 - persist deltas (database?)
+
+### Operations
+
+### `withdraw`
+
+Withdraw funds from an account balance
+
+```javascript
+{
+  "account": "[account]",
+  "id": "1234567890",
+  "withdraw": {
+    "currency": "EUR",
+    "amount": "5000"
+  }
+}
+```
+
+result:
+
+```javascript
+{
+  "account": "[account]",
+  "id": "1234567890",
+  "result": "success",
+  "withdraw": {
+    "currency": "EUR",
+    "amount": "5000"
+  }
+}
+```
+
+Can result in the following deltas:
+
+- `withdraw`
+
+### `cancel`
+
+Remove an order from an order book
+
+```javascript
+{
+  "account": "[account]",
+  "id": "1234567890",
+  "cancel": {
+    "id": "9876543210"
+  }
+}
+```
+
+result:
+
+```javascript
+{
+  "account": "[account]",
+  "id": "1234567890",
+  "result": "success",
+  "cancel": {
+    "id": "9876543210"
+  }
+}
+```
+
+Can result in the following deltas:
+
+- `cancel`
 
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Test your code using: 

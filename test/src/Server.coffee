@@ -70,18 +70,18 @@ describe 'Server', ->
         deposit:
           currency: 'BTC'
           amount: '50'
-      @orderOperation1 =
+      @submitOperation1 =
         account: 'Peter'
         id: 0
-        order:
+        submit:
           bidCurrency: 'EUR'
           offerCurrency: 'BTC'
           bidPrice: '100'
           bidAmount: '50'
-      @orderOperation2 =
+      @submitOperation2 =
         account: 'Peter'
         id: 1
-        order:
+        submit:
           bidCurrency: 'BTC'
           offerCurrency: 'EUR'
           bidPrice: '20'
@@ -141,10 +141,13 @@ describe 'Server', ->
       secondDelta = (message) =>
         delta = JSON.parse message
         delta.id.should.equal 1
-        increase = delta.increase
-        increase.account.should.equal 'Peter'
-        increase.currency.should.equal 'BTC'
-        increase.amount.should.equal '50'
+        operation = delta.operation
+        operation.id.should.equal 1
+        operation.account.should.equal 'Peter'
+        operation.result.should.equal 'success'
+        deposit = operation.deposit
+        deposit.currency.should.equal 'BTC'
+        deposit.amount.should.equal '50'
         deltaReceived.resolve()        
       firstResult = (message) =>
         operation = JSON.parse message
@@ -159,10 +162,13 @@ describe 'Server', ->
       firstDelta = (message) =>
         delta = JSON.parse message
         delta.id.should.equal 0
-        increase = delta.increase
-        increase.account.should.equal 'Peter'
-        increase.currency.should.equal 'EUR'
-        increase.amount.should.equal '5000'
+        operation = delta.operation
+        operation.id.should.equal 0
+        operation.account.should.equal 'Peter'
+        operation.result.should.equal 'success'
+        deposit = operation.deposit
+        deposit.currency.should.equal 'EUR'
+        deposit.amount.should.equal '5000'
         @ceDeltaHub.stream.removeListener 'message', firstDelta
         @ceDeltaHub.stream.on 'message', secondDelta
       @ceOperationHub.result.on 'message', firstResult
@@ -189,51 +195,57 @@ describe 'Server', ->
         operation.account.should.equal 'Peter'
         operation.id.should.equal 1
         operation.result.should.equal 'success'
-        order = operation.order
-        order.bidCurrency.should.equal 'BTC'
-        order.offerCurrency.should.equal 'EUR'
-        order.bidPrice.should.equal '20'
-        order.bidAmount.should.equal '500'
+        submit = operation.submit
+        submit.bidCurrency.should.equal 'BTC'
+        submit.offerCurrency.should.equal 'EUR'
+        submit.bidPrice.should.equal '20'
+        submit.bidAmount.should.equal '500'
         resultReceived.resolve()
       secondDelta = (message) =>
         delta = JSON.parse message
         delta.id.should.equal 1
-        add = delta.add
-        add.account.should.equal 'Peter'
-        add.bidCurrency.should.equal 'BTC'
-        add.offerCurrency.should.equal 'EUR'
-        add.bidPrice.should.equal '20'
-        add.bidAmount.should.equal '500'
+        operation = delta.operation
+        operation.id.should.equal 1
+        operation.account.should.equal 'Peter'
+        operation.result.should.equal 'success'
+        submit = operation.submit
+        submit.bidCurrency.should.equal 'BTC'
+        submit.offerCurrency.should.equal 'EUR'
+        submit.bidPrice.should.equal '20'
+        submit.bidAmount.should.equal '500'
         deltaReceived.resolve()        
       firstResult = (message) =>
         operation = JSON.parse message
         operation.account.should.equal 'Peter'
         operation.id.should.equal 0
         operation.result.should.equal 'success'
-        order = operation.order
-        order.bidCurrency.should.equal 'EUR'
-        order.offerCurrency.should.equal 'BTC'
-        order.bidPrice.should.equal '100'
-        order.bidAmount.should.equal '50'
+        submit = operation.submit
+        submit.bidCurrency.should.equal 'EUR'
+        submit.offerCurrency.should.equal 'BTC'
+        submit.bidPrice.should.equal '100'
+        submit.bidAmount.should.equal '50'
         @ceOperationHub.result.removeListener 'message', firstResult
         @ceOperationHub.result.on 'message', secondResult
       firstDelta = (message) =>
         delta = JSON.parse message
         delta.id.should.equal 0
-        add = delta.add
-        add.account.should.equal 'Peter'
-        add.bidCurrency.should.equal 'EUR'
-        add.offerCurrency.should.equal 'BTC'
-        add.bidPrice.should.equal '100'
-        add.bidAmount.should.equal '50'
+        operation = delta.operation
+        operation.id.should.equal 0
+        operation.account.should.equal 'Peter'
+        operation.result.should.equal 'success'
+        submit = operation.submit
+        submit.bidCurrency.should.equal 'EUR'
+        submit.offerCurrency.should.equal 'BTC'
+        submit.bidPrice.should.equal '100'
+        submit.bidAmount.should.equal '50'
         @ceDeltaHub.stream.removeListener 'message', firstDelta
         @ceDeltaHub.stream.on 'message', secondDelta
       @ceOperationHub.result.on 'message', firstResult
       @ceDeltaHub.stream.on 'message', firstDelta
       # wait for sockets to open and connect in case everything is going too quick
       setTimeout =>
-        @ceOperationHub.stream.send JSON.stringify @orderOperation1
-        @ceOperationHub.stream.send JSON.stringify @orderOperation2
+        @ceOperationHub.stream.send JSON.stringify @submitOperation1
+        @ceOperationHub.stream.send JSON.stringify @submitOperation2
       , 100
 
     it 'should error on operations with IDs that have already been executed', (done) ->
