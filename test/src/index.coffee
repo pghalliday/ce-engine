@@ -16,7 +16,7 @@ describe 'ce-engine', ->
       stream: zmq.socket 'pull'
     depositOperation =
       account: 'Peter'
-      id: 0     
+      sequence: 0     
       deposit:
         currency: 'EUR'
         amount: '5000'
@@ -47,7 +47,7 @@ describe 'ce-engine', ->
       ceOperationHub.result.on 'message', (message) =>
         operation = JSON.parse message
         operation.account.should.equal 'Peter'
-        operation.id.should.equal 0
+        operation.sequence.should.equal 0
         operation.result.should.equal 'success'
         deposit = operation.deposit
         deposit.currency.should.equal 'EUR'
@@ -55,9 +55,9 @@ describe 'ce-engine', ->
         statusReceived.resolve()
       ceDeltaHub.stream.on 'message', (message) =>
         delta = JSON.parse message
-        delta.id.should.equal 0
+        delta.sequence.should.equal 0
         operation = delta.operation
-        operation.id.should.equal 0
+        operation.sequence.should.equal 0
         operation.account.should.equal 'Peter'
         operation.result.should.equal 'success'
         deposit = operation.deposit

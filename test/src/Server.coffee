@@ -54,25 +54,25 @@ describe 'Server', ->
       @ceDeltaHub.stream.bindSync 'tcp://*:' + ceDeltaHubStreamPort
       @unknownOperation =
         account: 'Peter'
-        id: 0
+        sequence: 0
         unknown:
           currency: 'BTC'
           amount: '50'
       @depositOperation1 =
         account: 'Peter'
-        id: 0     
+        sequence: 0     
         deposit:
           currency: 'EUR'
           amount: '5000'
       @depositOperation2 =
         account: 'Peter'
-        id: 1
+        sequence: 1
         deposit:
           currency: 'BTC'
           amount: '50'
       @submitOperation1 =
         account: 'Peter'
-        id: 0
+        sequence: 0
         submit:
           bidCurrency: 'EUR'
           offerCurrency: 'BTC'
@@ -80,7 +80,7 @@ describe 'Server', ->
           bidAmount: '50'
       @submitOperation2 =
         account: 'Peter'
-        id: 1
+        sequence: 1
         submit:
           bidCurrency: 'BTC'
           offerCurrency: 'EUR'
@@ -107,7 +107,7 @@ describe 'Server', ->
       @ceOperationHub.result.on 'message', (message) =>
         operation = JSON.parse message
         operation.account.should.equal 'Peter'
-        operation.id.should.equal 0
+        operation.sequence.should.equal 0
         operation.result.should.equal 'Error: Unknown operation'
         unknown = operation.unknown
         unknown.currency.should.equal 'BTC'
@@ -132,7 +132,7 @@ describe 'Server', ->
       secondResult = (message) =>
         operation = JSON.parse message
         operation.account.should.equal 'Peter'
-        operation.id.should.equal 1
+        operation.sequence.should.equal 1
         operation.result.should.equal 'success'
         deposit = operation.deposit
         deposit.currency.should.equal 'BTC'
@@ -140,9 +140,9 @@ describe 'Server', ->
         resultReceived.resolve()
       secondDelta = (message) =>
         delta = JSON.parse message
-        delta.id.should.equal 1
+        delta.sequence.should.equal 1
         operation = delta.operation
-        operation.id.should.equal 1
+        operation.sequence.should.equal 1
         operation.account.should.equal 'Peter'
         operation.result.should.equal 'success'
         deposit = operation.deposit
@@ -152,7 +152,7 @@ describe 'Server', ->
       firstResult = (message) =>
         operation = JSON.parse message
         operation.account.should.equal 'Peter'
-        operation.id.should.equal 0
+        operation.sequence.should.equal 0
         operation.result.should.equal 'success'
         deposit = operation.deposit
         deposit.currency.should.equal 'EUR'
@@ -161,9 +161,9 @@ describe 'Server', ->
         @ceOperationHub.result.on 'message', secondResult
       firstDelta = (message) =>
         delta = JSON.parse message
-        delta.id.should.equal 0
+        delta.sequence.should.equal 0
         operation = delta.operation
-        operation.id.should.equal 0
+        operation.sequence.should.equal 0
         operation.account.should.equal 'Peter'
         operation.result.should.equal 'success'
         deposit = operation.deposit
@@ -193,7 +193,7 @@ describe 'Server', ->
       secondResult = (message) =>
         operation = JSON.parse message
         operation.account.should.equal 'Peter'
-        operation.id.should.equal 1
+        operation.sequence.should.equal 1
         operation.result.should.equal 'success'
         submit = operation.submit
         submit.bidCurrency.should.equal 'BTC'
@@ -203,9 +203,9 @@ describe 'Server', ->
         resultReceived.resolve()
       secondDelta = (message) =>
         delta = JSON.parse message
-        delta.id.should.equal 1
+        delta.sequence.should.equal 1
         operation = delta.operation
-        operation.id.should.equal 1
+        operation.sequence.should.equal 1
         operation.account.should.equal 'Peter'
         operation.result.should.equal 'success'
         submit = operation.submit
@@ -217,7 +217,7 @@ describe 'Server', ->
       firstResult = (message) =>
         operation = JSON.parse message
         operation.account.should.equal 'Peter'
-        operation.id.should.equal 0
+        operation.sequence.should.equal 0
         operation.result.should.equal 'success'
         submit = operation.submit
         submit.bidCurrency.should.equal 'EUR'
@@ -228,9 +228,9 @@ describe 'Server', ->
         @ceOperationHub.result.on 'message', secondResult
       firstDelta = (message) =>
         delta = JSON.parse message
-        delta.id.should.equal 0
+        delta.sequence.should.equal 0
         operation = delta.operation
-        operation.id.should.equal 0
+        operation.sequence.should.equal 0
         operation.account.should.equal 'Peter'
         operation.result.should.equal 'success'
         submit = operation.submit
@@ -252,7 +252,7 @@ describe 'Server', ->
       secondResult = (message) =>
         operation = JSON.parse message
         operation.account.should.equal 'Peter'
-        operation.id.should.equal 0
+        operation.sequence.should.equal 0
         operation.result.should.equal 'Error: Operation ID already applied'
         deposit = operation.deposit
         deposit.currency.should.equal 'EUR'
@@ -261,7 +261,7 @@ describe 'Server', ->
       firstResult = (message) =>
         operation = JSON.parse message
         operation.account.should.equal 'Peter'
-        operation.id.should.equal 0
+        operation.sequence.should.equal 0
         operation.result.should.equal 'success'
         deposit = operation.deposit
         deposit.currency.should.equal 'EUR'
@@ -279,7 +279,7 @@ describe 'Server', ->
       @ceOperationHub.result.on 'message', (message) =>
         operation = JSON.parse message
         operation.account.should.equal 'Peter'
-        operation.id.should.equal 1
+        operation.sequence.should.equal 1
         operation.result.should.equal 'Error: Operation ID out of sequence'
         deposit = operation.deposit
         deposit.currency.should.equal 'BTC'

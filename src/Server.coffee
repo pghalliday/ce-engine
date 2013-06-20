@@ -2,8 +2,8 @@ zmq = require 'zmq'
 
 module.exports = class Server
   constructor: (@options) ->
-    nextOperationId = 0
-    nextDeltaId = 0
+    nextOperationSequence = 0
+    nextDeltaSequence = 0
     @ceOperationHub = 
       stream: zmq.socket 'sub'
       result: zmq.socket 'push'
@@ -12,24 +12,24 @@ module.exports = class Server
       stream: zmq.socket 'push'
     @ceOperationHub.stream.on 'message', (message) =>
       operation = JSON.parse message
-      if operation.id == nextOperationId
-        nextOperationId++
+      if operation.sequence == nextOperationSequence
+        nextOperationSequence++
         deposit = operation.deposit
         submit = operation.submit
         if deposit
           operation.result = 'success'
           delta =
-            id: nextDeltaId++
+            sequence: nextDeltaSequence++
             operation: operation
         else if submit
           operation.result = 'success'
           delta =
-            id: nextDeltaId++
+            sequence: nextDeltaSequence++
             operation: operation
         else
           operation.result = 'Error: Unknown operation'
       else
-        if operation.id > nextOperationId
+        if operation.sequence > nextOperationSequence
           operation.result = 'Error: Operation ID out of sequence'
         else
           operation.result = 'Error: Operation ID already applied'
