@@ -10,6 +10,7 @@ module.exports = class Server
     @ceOperationHub.stream.subscribe ''
     @ceDeltaHub = 
       stream: zmq.socket 'push'
+      state: zmq.socket 'router'
     @ceOperationHub.stream.on 'message', (message) =>
       operation = JSON.parse message
       if operation.sequence == nextOperationSequence
@@ -43,10 +44,12 @@ module.exports = class Server
     @ceOperationHub.stream.close()
     @ceOperationHub.result.close()
     @ceDeltaHub.stream.close()
+    @ceDeltaHub.state.close()
     callback()
 
   start: (callback) =>
     @ceOperationHub.stream.connect 'tcp://' + @options['ce-operation-hub'].host + ':' + @options['ce-operation-hub'].stream
     @ceOperationHub.result.connect 'tcp://' + @options['ce-operation-hub'].host + ':' + @options['ce-operation-hub'].result
     @ceDeltaHub.stream.connect 'tcp://' + @options['ce-delta-hub'].host + ':' + @options['ce-delta-hub'].stream
+    @ceDeltaHub.state.connect 'tcp://' + @options['ce-delta-hub'].host + ':' + @options['ce-delta-hub'].state
     callback()

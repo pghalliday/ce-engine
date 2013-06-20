@@ -19,6 +19,7 @@ describe 'Server', ->
         'ce-delta-hub':
           host: 'localhost'
           stream: ports()
+          state: ports()
       server.stop (error) ->
         expect(error).to.not.be.ok
         done()
@@ -33,6 +34,7 @@ describe 'Server', ->
         'ce-delta-hub':
           host: 'localhost'
           stream: ports()
+          state: ports()
       server.start (error) ->
         expect(error).to.not.be.ok
         server.stop (error) ->
@@ -50,8 +52,11 @@ describe 'Server', ->
       @ceOperationHub.result.bindSync 'tcp://*:' + ceOperationHubResultPort
       @ceDeltaHub = 
         stream: zmq.socket 'pull'
+        state: zmq.socket 'dealer'
       ceDeltaHubStreamPort = ports()
       @ceDeltaHub.stream.bindSync 'tcp://*:' + ceDeltaHubStreamPort
+      ceDeltaHubStatePort = ports()
+      @ceDeltaHub.state.bindSync 'tcp://*:' + ceDeltaHubStatePort
       @unknownOperation =
         account: 'Peter'
         sequence: 0
@@ -94,6 +99,7 @@ describe 'Server', ->
         'ce-delta-hub':
           host: 'localhost'
           stream: ceDeltaHubStreamPort
+          state: ceDeltaHubStatePort
       @server.start done
 
     afterEach (done) ->
@@ -101,6 +107,7 @@ describe 'Server', ->
         @ceOperationHub.stream.close()
         @ceOperationHub.result.close()
         @ceDeltaHub.stream.close()
+        @ceDeltaHub.state.close()
         done()
 
     it 'should push a result of unknown operation to the ce-operation-hub for published unknown operations', (done) ->

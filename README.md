@@ -20,11 +20,13 @@ configuration should be placed in a file called `config.json` in the root of the
     // Port for 0MQ `push` socket 
     "result": 7001    
   },
-  // Connects to a ce-delta-hub to stream sequential market state deltas
+  // Connects to a ce-delta-hub to respond to state requests and stream sequential market state deltas
   "ce-delta-hub": {
     "host": "localhost",
     // Port for 0MQ `push` socket 
-    "stream": 7002
+    "stream": 7002,
+    // Port for 0MQ `router` socket 
+    "state": 7003
   }
 }
 ```

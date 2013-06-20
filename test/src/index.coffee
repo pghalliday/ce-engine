@@ -14,6 +14,7 @@ describe 'ce-engine', ->
       result: zmq.socket 'pull'
     ceDeltaHub = 
       stream: zmq.socket 'pull'
+      state: zmq.socket 'dealer'
     depositOperation =
       account: 'Peter'
       sequence: 0     
@@ -23,6 +24,7 @@ describe 'ce-engine', ->
     ceOperationHub.stream.bindSync 'tcp://*:7000'
     ceOperationHub.result.bindSync 'tcp://*:7001'
     ceDeltaHub.stream.bindSync 'tcp://*:7002'
+    ceDeltaHub.state.bindSync 'tcp://*:7003'
     childDaemon = new ChildDaemon 'node', [
       'lib/src/index.js',
       '--config',
@@ -39,6 +41,8 @@ describe 'ce-engine', ->
         expect(error).to.not.be.ok
         ceOperationHub.stream.close()
         ceOperationHub.result.close()
+        ceDeltaHub.stream.close()
+        ceDeltaHub.state.close()
         done()
     , done)
     .done()

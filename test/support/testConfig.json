@@ -6,6 +6,7 @@
   },
   "ce-delta-hub": {
     "host": "localhost",
-    "stream": 7002
+    "stream": 7002,
+    "state": 7003
   }
 }
