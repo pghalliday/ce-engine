@@ -54,8 +54,10 @@ Add funds to an account balance
 
 ```javascript
 {
+  "reference": "550e8400-e29b-41d4-a716-446655440000",
   "account": "[account]",
-  "id": "1234567890",
+  "sequence": 1234567890,
+  "timestamp": 1371737390976,
   "deposit": {
     "currency": "EUR",
     "amount": "5000"
@@ -67,8 +69,10 @@ result:
 
 ```javascript
 {
+  "reference": "550e8400-e29b-41d4-a716-446655440000",
   "account": "[account]",
-  "id": "1234567890",
+  "sequence": 1234567890,
+  "timestamp": 1371737390976,
   "result": "success",
   "deposit": {
     "currency": "EUR",
@@ -87,8 +91,10 @@ Add an order to an order book
 
 ```javascript
 {
+  "reference": "550e8400-e29b-41d4-a716-446655440000",
   "account": "[account]",
-  "id": "1234567890",
+  "sequence": 1234567890,
+  "timestamp": 1371737390976,
   "submit": {
     "bidCurrency": "BTC",
     "offerCurrency": "EUR",
@@ -102,8 +108,10 @@ result:
 
 ```javascript
 {
+  "reference": "550e8400-e29b-41d4-a716-446655440000",
   "account": "[account]",
-  "id": "1234567890",
+  "sequence": 1234567890,
+  "timestamp": 1371737390976,
   "result": "success",
   "submit": {
     "bidCurrency": "BTC",
@@ -136,8 +144,10 @@ Withdraw funds from an account balance
 
 ```javascript
 {
+  "reference": "550e8400-e29b-41d4-a716-446655440000",
   "account": "[account]",
-  "id": "1234567890",
+  "sequence": 1234567890,
+  "timestamp": 1371737390976,
   "withdraw": {
     "currency": "EUR",
     "amount": "5000"
@@ -149,8 +159,10 @@ result:
 
 ```javascript
 {
+  "reference": "550e8400-e29b-41d4-a716-446655440000",
   "account": "[account]",
-  "id": "1234567890",
+  "sequence": 1234567890,
+  "timestamp": 1371737390976,
   "result": "success",
   "withdraw": {
     "currency": "EUR",
@@ -169,10 +181,12 @@ Remove an order from an order book
 
 ```javascript
 {
+  "reference": "550e8400-e29b-41d4-a716-446655440000",
   "account": "[account]",
-  "id": "1234567890",
+  "sequence": 1234567890,
+  "timestamp": 1371737390976,
   "cancel": {
-    "id": "9876543210"
+    "sequence": 9876543210
   }
 }
 ```
@@ -181,11 +195,13 @@ result:
 
 ```javascript
 {
+  "reference": "550e8400-e29b-41d4-a716-446655440000",
   "account": "[account]",
-  "id": "1234567890",
+  "sequence": 1234567890,
+  "timestamp": 1371737390976,
   "result": "success",
   "cancel": {
-    "id": "9876543210"
+    "sequence": 9876543210
   }
 }
 ```
