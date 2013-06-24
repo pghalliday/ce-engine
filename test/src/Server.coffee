@@ -296,3 +296,6 @@ describe 'Server', ->
       setTimeout =>
         @ceOperationHub.stream.send JSON.stringify @depositOperation2
       , 100      
+
+    it.skip 'should be up to date with operations from the ce-operation-hub and provide the current state to the ce-delta-hub instance', (done) ->
+      done()
