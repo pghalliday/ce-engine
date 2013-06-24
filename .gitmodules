@@ -1,6 +1,3 @@
 [submodule "cookbooks/ce-engine"]
 	path = cookbooks/ce-engine
 	url = https://github.com/pghalliday/cookbook-ce-engine.git
-[submodule "currency-market"]
-	path = currency-market
-	url = https://github.com/pghalliday/currency-market.git
