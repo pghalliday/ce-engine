@@ -12,7 +12,7 @@ configuration should be placed in a file called `config.json` in the root of the
 
 ```javascript
 {
-  // Deposits commssion payments in this account ID
+  // Deposits commission payments into this account ID
   "commission": {
     "account": "commission"
   },
