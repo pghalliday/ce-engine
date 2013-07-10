@@ -6,6 +6,10 @@ ChildDaemon = require 'child-daemon'
 zmq = require 'zmq'
 Q = require 'q'
 
+Operation = require('currency-market').Operation
+Delta = require('currency-market').Delta
+Amount = require('currency-market').Amount
+
 describe 'ce-engine', ->
   it 'should take parameters from a file', (done) ->
     this.timeout 5000
@@ -15,12 +19,15 @@ describe 'ce-engine', ->
     ceDeltaHub = 
       stream: zmq.socket 'pull'
       state: zmq.socket 'dealer'
-    depositOperation =
+    depositOperation = new Operation
+      reference: '550e8400-e29b-41d4-a716-446655440000'
       account: 'Peter'
-      sequence: 0     
       deposit:
         currency: 'EUR'
-        amount: '5000'
+        amount: new Amount '5000'
+    depositOperation.accept
+      sequence: 0
+      timestamp: Date.now()
     ceOperationHub.stream.bindSync 'tcp://*:7000'
     ceOperationHub.result.bindSync 'tcp://*:7001'
     ceDeltaHub.stream.bindSync 'tcp://*:7002'
@@ -49,24 +56,38 @@ describe 'ce-engine', ->
     childDaemon.start (error, matched) =>
       expect(error).to.not.be.ok
       ceOperationHub.result.on 'message', (message) =>
-        operation = JSON.parse message
+        response = JSON.parse message
+        operation = new Operation
+          exported: response.operation
         operation.account.should.equal 'Peter'
         operation.sequence.should.equal 0
-        operation.result.should.equal 'success'
         deposit = operation.deposit
         deposit.currency.should.equal 'EUR'
-        deposit.amount.should.equal '5000'
-        statusReceived.resolve()
-      ceDeltaHub.stream.on 'message', (message) =>
-        delta = JSON.parse message
+        deposit.amount.compareTo(new Amount '5000').should.equal 0
+        delta = new Delta 
+          exported: response.delta
         delta.sequence.should.equal 0
         operation = delta.operation
-        operation.sequence.should.equal 0
         operation.account.should.equal 'Peter'
-        operation.result.should.equal 'success'
+        operation.sequence.should.equal 0
         deposit = operation.deposit
         deposit.currency.should.equal 'EUR'
-        deposit.amount.should.equal '5000'
+        deposit.amount.compareTo(new Amount '5000').should.equal 0
+        result = delta.result
+        result.funds.compareTo(new Amount '5000').should.equal 0
+        statusReceived.resolve()
+      ceDeltaHub.stream.on 'message', (message) =>
+        delta = new Delta 
+          json: message
+        delta.sequence.should.equal 0
+        operation = delta.operation
+        operation.account.should.equal 'Peter'
+        operation.sequence.should.equal 0
+        deposit = operation.deposit
+        deposit.currency.should.equal 'EUR'
+        deposit.amount.compareTo(new Amount '5000').should.equal 0
+        result = delta.result
+        result.funds.compareTo(new Amount '5000').should.equal 0
         deltaReceived.resolve()
       # wait for sockets to open and connect in case everything is going too quick
       setTimeout =>

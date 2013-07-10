@@ -1,9 +1,19 @@
 zmq = require 'zmq'
+Engine = require('currency-market').Engine
+Operation = require('currency-market').Operation
+Amount = require('currency-market').Amount
+
+COMMISSION_REFERENCE = '0.1%'
+COMMISSION_RATE = new Amount '0.001'
 
 module.exports = class Server
   constructor: (@options) ->
-    nextOperationSequence = 0
-    nextDeltaSequence = 0
+    @engine = new Engine
+      commission:
+        account: @options.commission.account
+        calculate: (params) ->
+          amount: params.amount.multiply COMMISSION_RATE
+          refrence: COMMISSION_REFERENCE
     @ceOperationHub = 
       stream: zmq.socket 'sub'
       result: zmq.socket 'push'
@@ -12,33 +22,17 @@ module.exports = class Server
       stream: zmq.socket 'push'
       state: zmq.socket 'router'
     @ceOperationHub.stream.on 'message', (message) =>
-      operation = JSON.parse message
-      if operation.sequence == nextOperationSequence
-        nextOperationSequence++
-        deposit = operation.deposit
-        submit = operation.submit
-        if deposit
-          operation.result = 'success'
-          delta =
-            sequence: nextDeltaSequence++
-            operation: operation
-        else if submit
-          operation.result = 'success'
-          delta =
-            sequence: nextDeltaSequence++
-            operation: operation
-        else
-          operation.result = 'Error: Unknown operation'
-      else
-        if operation.sequence > nextOperationSequence
-          operation.result = 'Error: Operation ID out of sequence'
-        else
-          operation.result = 'Error: Operation ID already applied'
-      @ceOperationHub.result.send JSON.stringify operation
-      if delta
-        @ceDeltaHub.stream.send JSON.stringify delta
-
-
+      response =
+        operation: message.toString()
+      try
+        response.operation= new Operation
+          json: message
+        response.delta = @engine.apply response.operation
+      catch error
+        response.error = error.toString()
+      @ceOperationHub.result.send JSON.stringify response
+      if response.delta
+        @ceDeltaHub.stream.send JSON.stringify response.delta
 
   stop: (callback) =>
     @ceOperationHub.stream.close()

@@ -12,6 +12,10 @@ configuration should be placed in a file called `config.json` in the root of the
 
 ```javascript
 {
+  // Deposits commssion payments in this account ID
+  "commission": {
+    "account": "commission"
+  },
   // Connects to a ce-operation-hub to receive sequential operations and push the results
   "ce-operation-hub": {
     "host": "localhost",

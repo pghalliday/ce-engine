@@ -1,4 +1,7 @@
 {
+  "commission": {
+    "account": "commission"
+  },
   "ce-operation-hub": {
     "host": "localhost",
     "stream": 7000,
