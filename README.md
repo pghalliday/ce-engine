@@ -52,90 +52,34 @@ Output will be logged to the following files
 
 ## API
 
-The following operations are supported
-
-### `deposit`
-
-Add funds to an account balance
+Accepted `currency-market` operations can be submitted through the `ce-operation-hub` `stream` socket. Results will be pushed to the `result` socket in the following format.
 
 ```javascript
 {
-  "reference": "550e8400-e29b-41d4-a716-446655440000",
-  "account": "[account]",
-  "sequence": 1234567890,
-  "timestamp": 1371737390976,
-  "deposit": {
-    "currency": "EUR",
-    "amount": "5000"
+  operation: {
+    // the `currency-market` operation
+    ...
+  },
+  delta: {
+    // the `currency-market` delta for successful operations
+    ...
   }
 }
-```
 
-result:
+// OR
 
-```javascript
 {
-  "reference": "550e8400-e29b-41d4-a716-446655440000",
-  "account": "[account]",
-  "sequence": 1234567890,
-  "timestamp": 1371737390976,
-  "result": "success",
-  "deposit": {
-    "currency": "EUR",
-    "amount": "5000"
-  }
+  operation: {
+    // the operation
+    ...
+  },
+  // An error for unsuccessful operations
+  error: "[Error]"
 }
 ```
-
-Can result in the following deltas:
-
-- `deposit`
-
-### `submit`
-
-Add an order to an order book
-
-```javascript
-{
-  "reference": "550e8400-e29b-41d4-a716-446655440000",
-  "account": "[account]",
-  "sequence": 1234567890,
-  "timestamp": 1371737390976,
-  "submit": {
-    "bidCurrency": "BTC",
-    "offerCurrency": "EUR",
-    "bidPrice": "100",
-    "bidAmount": "50"
-  }
-}
-```
-
-result:
-
-```javascript
-{
-  "reference": "550e8400-e29b-41d4-a716-446655440000",
-  "account": "[account]",
-  "sequence": 1234567890,
-  "timestamp": 1371737390976,
-  "result": "success",
-  "submit": {
-    "bidCurrency": "BTC",
-    "offerCurrency": "EUR",
-    "bidPrice": "100",
-    "bidAmount": "50"
-  }
-}
-```
-
-Can result in the following deltas:
-
-- `submit` - resulting from the addition of the order
-- `trade` - resulting from trades executed as a result of adding the order
 
 ## Roadmap
 
-- integrate `currency-market` module
 - persist market state (database?)
   - catch up on missed operations
 - maintain a history of deltas
