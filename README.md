@@ -50,34 +50,6 @@ Output will be logged to the following files
 - `./out.log` stdout
 - `./err.log` stderr
 
-## API
-
-Accepted `currency-market` operations can be submitted through the `ce-operation-hub` `stream` socket. Results will be pushed to the `result` socket in the following format.
-
-```javascript
-{
-  operation: {
-    // the `currency-market` operation
-    ...
-  },
-  delta: {
-    // the `currency-market` delta for successful operations
-    ...
-  }
-}
-
-// OR
-
-{
-  operation: {
-    // the operation
-    ...
-  },
-  // An error for unsuccessful operations
-  error: "[Error]"
-}
-```
-
 ## Roadmap
 
 - persist market state (database?)
