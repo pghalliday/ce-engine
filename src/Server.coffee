@@ -13,7 +13,7 @@ module.exports = class Server
         account: @options.commission.account
         calculate: (params) ->
           amount: params.amount.multiply COMMISSION_RATE
-          refrence: COMMISSION_REFERENCE
+          reference: COMMISSION_REFERENCE
     @ceOperationHub = 
       stream: zmq.socket 'sub'
       result: zmq.socket 'push'
